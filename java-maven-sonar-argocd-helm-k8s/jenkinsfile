@@ -49,24 +49,38 @@ pipeline {
                 }
             }
         }
-        stage('Update Deployment File') {
-            environment {
-                GIT_REPO_NAME = "Simplified-CICD-GitOps-with-Jenkins-and-ArgoCD" 
-                GIT_USER_NAME = "Akshay5596"  
-            }
-            steps {
-                withCredentials([string(credentialsId: 'git_cred', variable: 'GITHUB_TOKEN')]) {
-                    sh '''
-                        git config user.email "test@gmail.com" 
-                        git config user.name "Akshay5596"          
-                        OLD_BUILD_NUMBER=$((${BUILD_NUMBER}-1))
-                        sed -i "s/${OLD_BUILD_NUMBER}/${BUILD_NUMBER}/g" java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
-                        git add java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
-                        git commit  -m "Update deployment image to version ${BUILD_NUMBER}"
-                        git push "https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}" HEAD:main
-                    '''
-                }
-            }
+stage('Update Deployment File') {
+    environment {
+        GIT_REPO_NAME = "Simplified-CICD-GitOps-with-Jenkins-and-ArgoCD"
+        GIT_USER_NAME = "Akshay5596"
+    }
+    steps {
+        withCredentials([string(credentialsId: 'git_cred', variable: 'GITHUB_TOKEN')]) {
+            sh '''
+                # Set Git User Info
+                git config --global user.email "test@gmail.com"
+                git config --global user.name "Akshay5596"
+
+                # Clone Repository
+                git clone https://github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git
+                cd ${GIT_REPO_NAME}
+
+                # Ensure BUILD_NUMBER is defined and set OLD_BUILD_NUMBER safely
+                OLD_BUILD_NUMBER=$((BUILD_NUMBER > 1 ? BUILD_NUMBER - 1 : 1))
+
+                # Modify Deployment File
+                sed -i "s/${OLD_BUILD_NUMBER}/${BUILD_NUMBER}/g" java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
+
+                # Commit and Push Changes Securely
+                git add java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
+                git commit -m "Update deployment image to version ${BUILD_NUMBER}"
+
+                # Set Secure Remote URL and Push Changes
+                git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git
+                git push origin main
+            '''
         }
     }
+}
+}
 }
