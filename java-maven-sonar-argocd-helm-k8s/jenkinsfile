@@ -34,7 +34,7 @@ pipeline {
 stage('Build and Push Docker Image') {
     environment {
         DOCKER_IMAGE = "akshay4444/argo:${BUILD_NUMBER}" 
-        DOCKERFILE_LOCATION = "java-maven-sonar-argocd-helm-k8s/spring-boot-app/Dockerfile"
+        DOCKERFILE_LOCATION = "java-maven-sonar-argocd-helm-k8s/spring-boot-app"
     }
     steps {
         withCredentials([usernamePassword(credentialsId: 'docker_cred', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
