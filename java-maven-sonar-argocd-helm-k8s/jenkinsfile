@@ -52,8 +52,8 @@ stage('Build and Push Docker Image') {
 
         stage('Update Deployment File') {
             environment {
-                GIT_REPO_NAME = "ultimate-cicd" ## replace with your github repository name
-                GIT_USER_NAME = "kiranbakale"   ## replace with your github account username
+                GIT_REPO_NAME = "Simplified-CICD-GitOps-with-Jenkins-and-ArgoCD"
+                GIT_USER_NAME = "Akshay5596"   
             }
             steps {
                 withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
