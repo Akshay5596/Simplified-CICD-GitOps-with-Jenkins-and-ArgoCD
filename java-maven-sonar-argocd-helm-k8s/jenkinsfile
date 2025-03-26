@@ -52,23 +52,19 @@ stage('Build and Push Docker Image') {
 
         stage('Update Deployment File') {
             environment {
-                GIT_REPO_NAME = "Simplified-CICD-GitOps-with-Jenkins-and-ArgoCD"
-                GIT_USER_NAME = "Akshay5596"
+                GIT_REPO_NAME = "ultimate-cicd" ## replace with your github repository name
+                GIT_USER_NAME = "kiranbakale"   ## replace with your github account username
             }
             steps {
-                withCredentials([string(credentialsId: 'git_cred', variable: 'GITHUB_TOKEN')]) {
+                withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
                     sh '''
-                        git config --global user.email "test@gmail.com"
-                        git config --global user.name "Akshay5596"
-                        git clone https://github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git
-                        cd ${GIT_REPO_NAME}
-                        OLD_BUILD_NUMBER=$(($BUILD_NUMBER - 1))
-                        [ $OLD_BUILD_NUMBER -lt 1 ] && OLD_BUILD_NUMBER=1
+                        git config user.email "akshaypatil@gmail.com" 
+                        git config user.name "Akshay5596"            
+                        OLD_BUILD_NUMBER=$((${BUILD_NUMBER}-1))
                         sed -i "s/${OLD_BUILD_NUMBER}/${BUILD_NUMBER}/g" java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
                         git add java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
                         git commit -m "Update deployment image to version ${BUILD_NUMBER}"
-                        git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git
-                        git push origin main
+                        git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
                     '''
                 }
             }
